@@ -17,7 +17,7 @@ namespace Курсовая
         /// </summary>
         private struct GraphInfo
         {
-            // Задаём структуру функций для осуществления запросов получения (get) и установки (set) значений.
+            // Задаём структуру функций и универсальных методов для осуществления запросов получения (get) и установки (set) значений.
             public int Radius { get; set; } // Радиус графа.
             public int Diameter { get; set; } // Диаметр графа.
             public List<int> Centers { get; set; } // Список центральных вершин графа.
@@ -64,9 +64,9 @@ namespace Курсовая
             // Задаем размеры ячеек в DataGridView.
             for (int i = 0; i < mWidth; ++i)
             {
-                Matrix.Columns[i].Width = 22;
+                Matrix.Columns[i].Width = 22; // Задаём ширину ячеек таблицы.
 
-                //Задаём нумерацию строк и столбцов в DataGridView.
+                // Задаём нумерацию строк и столбцов в DataGridView.
                 Matrix.Columns[i].HeaderText = (i + 1).ToString();
                 Matrix.Rows[i].HeaderCell.Value = (i + 1).ToString();
             }
@@ -99,7 +99,7 @@ namespace Курсовая
         /// <returns>Структура с информацией.</returns>
         private GraphInfo GetGraphInfo()
         {
-            var d = FillMatrix();
+            var d = FillMatrix(); // Присваиваем переменной d заполненный функцией FillMatrix список.
 
             // Заполняем отсутствующие ребра большими числами для удобства выполнения алгоритма.
             for (int i = 0; i < mWidth; ++i)
@@ -120,25 +120,31 @@ namespace Курсовая
                 select v.Max()
             ).ToList();
 
-            // Находим радиус и диаметр графа.
-            var min = distances.Min(); // Радиус графа.
-            var max = distances.Max(); // Диаметр графа.
+            // Находим радиус и диаметр графа. 
+            var min = distances.Min(); // Радиус графа. 
+            var max = distances.Max(); // Диаметр графа. 
 
-            // Составляем список центральных вершин графа.
-            var centers = (
-                from v
-                in distances
-                where v == min
-                select v
-            );
+            var centers = new List<int>();
 
-            // Возвращаем структуру, содержащую информацию о графе.
+            // Составляем список центральных вершин графа. 
+            for (int i = 0; i < distances.Count; ++i)
+                if (distances[i] == min)
+                    centers.Add(i + 1);
+
+            /* var centers = ( 
+            from v 
+            in distances 
+            where v == min 
+            select v 
+            ); */
+
+            // Возвращаем структуру, содержащую информацию о графе. 
             return new GraphInfo
             {
                 Radius = min,
                 Diameter = max,
                 Bridges = new List<Tuple<int, int>>(),
-                Centers = centers.ToList(),
+                Centers = centers, // .ToList(), 
                 ChromaticNumber = 0
             };
         }
@@ -261,7 +267,7 @@ namespace Курсовая
         private void ResultsButton_Click(object sender, EventArgs e)
         {
 
-            label3.Text = "Метрические характеристики:";
+            label3.Text = "Метрические характеристики (нумерация узлов с 1):";
             label4.Text = "Диаметр графа:";
             label5.Text = "Радиус графа:";
             label6.Text = "Центральные вершины графа:";
@@ -294,11 +300,6 @@ namespace Курсовая
             sb = new StringBuilder();
 
             foreach (var v in gi.Centers)
-                if (v == 1000000) {
-                    int nullvalue = 0;
-                    sb.Append($"{nullvalue}, ");
-                    break;
-                } else 
                 sb.Append($"{v}, "); // Формируем строку, содержащую все центральные вершины графа.
 
             if (sb.Length > 0)
@@ -329,12 +330,12 @@ namespace Курсовая
             int num;
             DataGridViewCell c = null;
             
-            // Проверка исключений, заполнять DataGridView можно только 0 или 1, в ином случае, ячейке указываеся значение 1.
+            // Проверка исключений, заполнять DataGridView можно только 0 или 1, в ином случае, ячейке указывается значение 1.
             try
             {
                 c = Matrix.Rows[e.RowIndex].Cells[e.ColumnIndex];
 
-                if (e.RowIndex == e.ColumnIndex)
+                if (e.RowIndex == e.ColumnIndex) // Проверка главной диагонали, для того, чтобы не допустить ввод матрицы смежности графа с петлями.
                 {
                     c.Value = "0";
                     return;
